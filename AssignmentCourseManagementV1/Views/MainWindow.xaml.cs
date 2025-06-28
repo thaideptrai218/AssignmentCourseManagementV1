@@ -1,4 +1,8 @@
-﻿using System.Text;
+﻿using AssignmentCourseManagementV1.Models;
+using AssignmentCourseManagementV1.ViewModels;
+using AssignmentCourseManagementV1.Views;
+using System.ComponentModel;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -8,7 +12,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using AssignmentCourseManagementV1.Views;
 
 namespace AssignmentCourseManagementV1.Views
 {
@@ -36,6 +39,15 @@ namespace AssignmentCourseManagementV1.Views
         private void btnReset_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+        private void cbCourses_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ScheduleGrid.Items.Filter = obj =>
+            {
+                Course selected = (Course)cbCourses.SelectedItem;
+                CourseSchedule target = (CourseSchedule)obj;
+                return target.CourseId == selected.CourseId;
+            };
         }
     }
 }

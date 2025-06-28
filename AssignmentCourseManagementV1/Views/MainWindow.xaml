@@ -5,10 +5,15 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:AssignmentCourseManagementV1.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="clr-namespace:AssignmentCourseManagementV1.ViewModels"
     Title="MainWindow"
     Width="800"
     Height="450"
     mc:Ignorable="d">
+
+    <Window.DataContext>
+        <viewmodels:MainWindowViewModel />
+    </Window.DataContext>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="15*" />
@@ -22,13 +27,48 @@
             Width="250"
             Height="30"
             HorizontalAlignment="Center"
-            VerticalAlignment="Center" />
+            VerticalAlignment="Center"
+            HorizontalContentAlignment="Left"
+            VerticalContentAlignment="Center"
+            DisplayMemberPath="CourseCode"
+            ItemsSource="{Binding Courses}"
+            SelectedValuePath="CourseId"
+            SelectionChanged="cbCourses_SelectionChanged" />
 
         <DataGrid
+            Name="ScheduleGrid"
             Grid.Row="1"
             Margin="10"
-            Background="Bisque" />
-
+            AutoGenerateColumns="False"
+            Background="Bisque"
+            ItemsSource="{Binding CourseSchedues}">
+            <DataGrid.Columns>
+                <DataGridTextColumn
+                    Width="30"
+                    Binding="{Binding TeachingScheduleId}"
+                    Header="TeachingScheduleId" />
+                <DataGridTextColumn
+                    Width="30"
+                    Binding="{Binding CourseId}"
+                    Header="CourseID" />
+                <DataGridTextColumn
+                    Width="200"
+                    Binding="{Binding TeachingDate}"
+                    Header="TeachingDate" />
+                <DataGridTextColumn
+                    Width="50"
+                    Binding="{Binding Slot}"
+                    Header="Slot" />
+                <DataGridTextColumn
+                    Width="100"
+                    Binding="{Binding RoomId}"
+                    Header="RoomID" />
+                <DataGridTextColumn
+                    Width="100"
+                    Binding="{Binding Description}"
+                    Header="Description" />
+            </DataGrid.Columns>
+        </DataGrid>
         <StackPanel
             Grid.Row="2"
             Margin="10"
