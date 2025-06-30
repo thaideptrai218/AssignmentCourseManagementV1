@@ -11,8 +11,6 @@ namespace AssignmentCourseManagementV1.Views
         public AddScheduleWindow()
         {
             InitializeComponent();
-            AddScheduleViewModel viewModel = new AddScheduleViewModel();
-            this.DataContext = viewModel;
         }
     }
 }

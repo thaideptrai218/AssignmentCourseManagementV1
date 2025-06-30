@@ -4,18 +4,20 @@ using AssignmentCourseManagementV1.Views;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows;
 
 namespace AssignmentCourseManagementV1.ViewModels
 {
     class MainWindowViewModel : BaseViewModel
     {
-        public APContext _db { get; set; }
+        private APContext _db;
+
         public ObservableCollection<Course> Courses { get; set; }
-        public ObservableCollection<CourseSchedule> CourseSchedues { get; set; }
+        public ObservableCollection<CourseSchedule> CourseSchedules { get; set; }
         public ObservableCollection<CourseSchedule> FilteredCourseSchedules { get; set; }
 
-        public RelayCommand EditCommand;
-        public RelayCommand DeleteCommand;
+        public RelayCommand EditCommand { get; set; }
+        public RelayCommand DeleteCommand { get; set; }
         public RelayCommand ResetCommand { get; set; }
         public RelayCommand AddCommand { get; set; }
         public RelayCommand FilterCommand { get; set; }
@@ -26,50 +28,105 @@ namespace AssignmentCourseManagementV1.ViewModels
             get => _selectedCourse;
             set
             {
-                if (_selectedCourse != value)
-                {
-                    _selectedCourse = value;
-                    OnPropertyChanged(nameof(SelectedCourse));
-                    FilterCommand.Execute(null);
-                }
+                _selectedCourse = value;
+                OnPropertyChanged(nameof(SelectedCourse));
+                FilterSchedules();
             }
         }
 
+        private CourseSchedule _selectedCourseSchedule;
+        public CourseSchedule SelectedCourseSchedule
+        {
+            get => _selectedCourseSchedule;
+            set
+            {
+                _selectedCourseSchedule = value;
+                OnPropertyChanged(nameof(SelectedCourseSchedule));
+            }
+        }
 
         public MainWindowViewModel()
         {
-            _db = new APContext();
-            this.Courses = new ObservableCollection<Course>(_db.Courses.ToList());
-            this.CourseSchedues = new ObservableCollection<CourseSchedule>(_db.CourseSchedules.ToList());
-            AddCommand = new RelayCommand(addSchedule);
-            FilterCommand = new RelayCommand(filterSchedule);
-            ResetCommand = new RelayCommand(resetSchedule);
-
+            LoadData();
+            AddCommand = new RelayCommand(AddSchedule);
+            FilterCommand = new RelayCommand((o) => FilterSchedules());
+            ResetCommand = new RelayCommand(ResetFilter);
+            DeleteCommand = new RelayCommand(DeleteSchedule, (o) => SelectedCourseSchedule != null);
+            EditCommand = new RelayCommand(EditSchedule, (o) => SelectedCourseSchedule != null);
         }
 
-        private void resetSchedule(object obj)
+        private void LoadData()
+        {
+            _db = new APContext();
+            Courses = new ObservableCollection<Course>(_db.Courses.ToList());
+            CourseSchedules = new ObservableCollection<CourseSchedule>(_db.CourseSchedules.ToList());
+            FilterSchedules();
+        }
+
+        private void ResetFilter(object obj)
         {
             SelectedCourse = null;
+            SelectedCourseSchedule = null;
         }
 
-        private void filterSchedule(object obj)
+        private void FilterSchedules()
         {
             if (SelectedCourse == null)
             {
-                FilteredCourseSchedules = new ObservableCollection<CourseSchedule>(CourseSchedues);
+                FilteredCourseSchedules = new ObservableCollection<CourseSchedule>(CourseSchedules);
             }
             else
             {
                 FilteredCourseSchedules = new ObservableCollection<CourseSchedule>(
-                    CourseSchedues.Where(cs => cs.CourseId == SelectedCourse.CourseId));
+                    CourseSchedules.Where(cs => cs.CourseId == SelectedCourse.CourseId));
             }
             OnPropertyChanged(nameof(FilteredCourseSchedules));
         }
 
-        private void addSchedule(object obj)
+        private void AddSchedule(object obj)
         {
-            AddScheduleWindow addScheduleWindow = new AddScheduleWindow();
-            addScheduleWindow.Show();
+            var viewModel = new AddScheduleViewModel();
+            var window = new AddScheduleWindow
+            {
+                DataContext = viewModel
+            };
+            window.ShowDialog();
+            LoadData();
+        }
+
+        private void DeleteSchedule(object obj)
+        {
+            if (SelectedCourseSchedule == null) return;
+
+            var result = MessageBox.Show($"Are you sure you want to delete the schedule for {SelectedCourseSchedule.Course.CourseCode}?",
+                                           "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                using (var db = new APContext())
+                {
+                    var scheduleToDelete = db.CourseSchedules.Find(SelectedCourseSchedule.TeachingScheduleId);
+                    if (scheduleToDelete != null)
+                    {
+                        db.CourseSchedules.Remove(scheduleToDelete);
+                        db.SaveChanges();
+                    }
+                }
+                LoadData();
+            }
+        }
+
+        private void EditSchedule(object obj)
+        {
+            if (SelectedCourseSchedule == null) return;
+
+            var viewModel = new EditScheduleViewModel(SelectedCourseSchedule);
+            var window = new EditScheduleWindow
+            {
+                DataContext = viewModel
+            };
+            window.ShowDialog();
+            LoadData();
         }
     }
 }

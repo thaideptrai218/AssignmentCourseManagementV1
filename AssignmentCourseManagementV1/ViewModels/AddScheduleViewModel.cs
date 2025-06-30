@@ -1,99 +1,74 @@
 ﻿using AssignmentCourseManagementV1.Command;
 using AssignmentCourseManagementV1.Models;
-using Microsoft.EntityFrameworkCore.Metadata;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
 namespace AssignmentCourseManagementV1.ViewModels
 {
-    internal class AddScheduleViewModel: BaseViewModel
+    internal class AddScheduleViewModel : BaseViewModel
     {
-        public APContext _db { get; set; }
         public ObservableCollection<Course> Courses { get; set; }
-        public ObservableCollection<CourseSchedule> CourseSchedues { get; set; }
         public ObservableCollection<Room> Rooms { get; set; }
-
-        public ICommand AddCommand {  get; set; }
+        public ICommand AddCommand { get; set; }
 
         private Course _selectedCourse;
         public Course SelectedCourse
         {
             get => _selectedCourse;
-            set
-            {
-                if (_selectedCourse != value)
-                {
-                    _selectedCourse = value;
-                    OnPropertyChanged(nameof(SelectedCourse));
-                }
-            }
+            set { _selectedCourse = value; OnPropertyChanged(nameof(SelectedCourse)); }
         }
 
         private Room _selectedRoom;
         public Room SelectedRoom
         {
             get => _selectedRoom;
-            set
-            {
-                if (_selectedRoom != value)
-                {
-                    _selectedRoom = value;
-                    OnPropertyChanged(nameof(SelectedRoom));
-                }
-            }
+            set { _selectedRoom = value; OnPropertyChanged(nameof(SelectedRoom)); }
         }
 
         public DateTime? date { get; set; }
         public int? slot { get; set; }
-        
-        public string? description { get; set; }
+        public string description { get; set; }
 
         public AddScheduleViewModel()
         {
-            _db = new APContext();
-            this.Courses = new ObservableCollection<Course>(_db.Courses.ToList());
-            this.CourseSchedues = new ObservableCollection<CourseSchedule>(_db.CourseSchedules.ToList());
-            this.Rooms = new ObservableCollection<Room>(_db.Rooms.ToList());
-            this.AddCommand = new RelayCommand(AddSchedule);
+            using (var db = new APContext())
+            {
+                Courses = new ObservableCollection<Course>(db.Courses.ToList());
+                Rooms = new ObservableCollection<Room>(db.Rooms.ToList());
+            }
+            AddCommand = new RelayCommand(AddSchedule);
         }
 
         private void AddSchedule(object obj)
         {
-            // Basic validation
-            //if (SelectedCourse == null || SelectedRoom == null || date == null || slot == null)
-            //{
-            //    MessageBox.Show("Please fill in all required fields.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-            //    return;
-            //}
-
-            var newSchedule = new CourseSchedule
+            if (SelectedCourse == null || SelectedRoom == null || date == null || slot == null)
             {
-                CourseId = SelectedCourse.CourseId,
-                TeachingDate = date,
-                Slot = slot,
-                RoomId = SelectedRoom.RoomId,
-                Description = description
-            };
+                MessageBox.Show("Please fill in all required fields.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
-            _db.CourseSchedules.Add(newSchedule);
-            _db.SaveChanges();
+            using (var db = new APContext())
+            {
+                var newSchedule = new CourseSchedule
+                {
+                    CourseId = SelectedCourse.CourseId,
+                    TeachingDate = date,
+                    Slot = slot,
+                    RoomId = SelectedRoom.RoomId,
+                    Description = description
+                };
 
-            // Update local collection
-            CourseSchedues.Add(newSchedule);
+                db.CourseSchedules.Add(newSchedule);
+                db.SaveChanges();
+            }
 
             MessageBox.Show("Schedule added successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
-            // Optionally close the window if obj is the window
-            if (obj is Window window)
-            {
-                window.Close();
-            }
+            // The window will be closed by the user or by setting its DialogResult.
+            // For simplicity, we let the user close it. The MainWindow will reload data anyway.
         }
     }
 }

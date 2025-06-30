@@ -38,7 +38,11 @@
             Margin="10"
             AutoGenerateColumns="False"
             Background="Bisque"
-            ItemsSource="{Binding FilteredCourseSchedules}">
+            ItemsSource="{Binding FilteredCourseSchedules}"
+            SelectionMode="Single"
+            SelectedItem="{Binding SelectedCourseSchedule, Mode=TwoWay}" 
+            IsReadOnly="True"
+            >
             <DataGrid.Columns>
                 <DataGridTextColumn
                     Width="30"
@@ -83,13 +87,17 @@
                 Width="100"
                 Height="40"
                 Margin="0,0,20,0"
-                Content="Edit" />
+                Content="Edit" 
+                Command="{Binding EditCommand}"
+                />
             <Button
                 Name="btnDelete"
                 Width="100"
                 Height="40"
                 Margin="0,0,20,0"
-                Content="Delete" />
+                Content="Delete" 
+                Command="{Binding DeleteCommand}"
+                />
             <Button
                 Name="btnReset"
                 Width="100"
