@@ -9,6 +9,7 @@ namespace AssignmentCourseManagementV1.ViewModels
     {
         public Student StudentToEdit { get; set; }
         public bool IsSaved { get; private set; }
+        private APContext _db;
 
         public string Roll { get; set; }
         public string FirstName { get; set; }
@@ -17,8 +18,9 @@ namespace AssignmentCourseManagementV1.ViewModels
 
         public ICommand SaveCommand { get; set; }
 
-        public EditStudentViewModel(Student student)
+        public EditStudentViewModel(Student student, APContext db)
         {
+            _db = db;
             StudentToEdit = student;
             IsSaved = false;
 
@@ -39,17 +41,26 @@ namespace AssignmentCourseManagementV1.ViewModels
                 return;
             }
 
-            using (var db = new APContext())
+            // Data type and length validation
+            if (Roll.Length > 20)
             {
-                var studentToUpdate = db.Students.Find(StudentToEdit.StudentId);
-                if (studentToUpdate != null)
-                {
-                    studentToUpdate.Roll = this.Roll;
-                    studentToUpdate.FirstName = this.FirstName;
-                    studentToUpdate.MidName = this.MidName;
-                    studentToUpdate.LastName = this.LastName;
-                    db.SaveChanges();
-                }
+                MessageBox.Show("Roll number cannot exceed 20 characters.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (FirstName.Length > 50 || (MidName != null && MidName.Length > 50) || LastName.Length > 50)
+            {
+                MessageBox.Show("Names cannot exceed 50 characters.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var studentToUpdate = _db.Students.Find(StudentToEdit.StudentId);
+            if (studentToUpdate != null)
+            {
+                studentToUpdate.Roll = this.Roll;
+                studentToUpdate.FirstName = this.FirstName;
+                studentToUpdate.MidName = this.MidName;
+                studentToUpdate.LastName = this.LastName;
+                _db.SaveChanges();
             }
 
             MessageBox.Show("Student updated successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);

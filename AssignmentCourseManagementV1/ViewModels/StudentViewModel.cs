@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace AssignmentCourseManagementV1.ViewModels
 {
@@ -45,7 +46,13 @@ namespace AssignmentCourseManagementV1.ViewModels
 
         public StudentViewModel()
         {
+            _db = new APContext();
+            _students = new ObservableCollection<Student>();
+            Students = CollectionViewSource.GetDefaultView(_students);
+            Students.Filter = FilterStudents;
+
             LoadStudents();
+
             AddCommand = new RelayCommand(AddStudent);
             EditCommand = new RelayCommand(EditStudent, (o) => SelectedStudent != null);
             DeleteCommand = new RelayCommand(DeleteStudent, (o) => SelectedStudent != null);
@@ -54,10 +61,12 @@ namespace AssignmentCourseManagementV1.ViewModels
 
         private void LoadStudents()
         {
-            _db = new APContext();
-            _students = new ObservableCollection<Student>(_db.Students.ToList());
-            Students = CollectionViewSource.GetDefaultView(_students);
-            Students.Filter = FilterStudents;
+            _students.Clear();
+            var studentsFromDb = _db.Students.ToList();
+            foreach (var student in studentsFromDb)
+            {
+                _students.Add(student);
+            }
         }
 
         private bool FilterStudents(object obj)
@@ -78,11 +87,12 @@ namespace AssignmentCourseManagementV1.ViewModels
         private void Reset(object obj)
         {
             SearchText = string.Empty;
+            SelectedStudent = null;
         }
 
         private void AddStudent(object obj)
         {
-            var viewModel = new AddStudentViewModel();
+            var viewModel = new AddStudentViewModel(_db);
             var window = new AddStudentWindow
             {
                 DataContext = viewModel
@@ -98,7 +108,7 @@ namespace AssignmentCourseManagementV1.ViewModels
         {
             if (SelectedStudent == null) return;
 
-            var viewModel = new EditStudentViewModel(SelectedStudent);
+            var viewModel = new EditStudentViewModel(SelectedStudent, _db);
             var window = new EditStudentWindow
             {
                 DataContext = viewModel
@@ -114,17 +124,30 @@ namespace AssignmentCourseManagementV1.ViewModels
         {
             if (SelectedStudent == null) return;
 
-            var result = MessageBox.Show($"Are you sure you want to delete {SelectedStudent.FullName}?",
-                                           "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = MessageBox.Show($"Are you sure you want to delete {SelectedStudent.FullName}? This will also remove their enrollment and attendance records.",
+                                           "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
             if (result == MessageBoxResult.Yes)
             {
                 using (var db = new APContext())
                 {
-                    var studentToDelete = db.Students.Find(SelectedStudent.StudentId);
+                    // Eagerly load the student with related entities
+                    var studentToDelete = db.Students
+                        .Include(s => s.RollCallBooks)
+                        .Include(s => s.Courses)
+                        .FirstOrDefault(s => s.StudentId == SelectedStudent.StudentId);
+
                     if (studentToDelete != null)
                     {
+                        // Remove related RollCallBooks
+                        db.RollCallBooks.RemoveRange(studentToDelete.RollCallBooks);
+
+                        // Remove student's course enrollments (many-to-many)
+                        studentToDelete.Courses.Clear();
+
+                        // Now, remove the student
                         db.Students.Remove(studentToDelete);
+
                         db.SaveChanges();
                     }
                 }
