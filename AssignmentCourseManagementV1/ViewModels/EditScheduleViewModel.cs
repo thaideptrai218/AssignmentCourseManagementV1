@@ -11,6 +11,7 @@ namespace AssignmentCourseManagementV1.ViewModels
     class EditScheduleViewModel : BaseViewModel
     {
         public CourseSchedule ScheduleToEdit { get; set; }
+        public bool IsSaved { get; private set; }
         public ObservableCollection<Course> Courses { get; set; }
         public ObservableCollection<Room> Rooms { get; set; }
         public ICommand SaveCommand { get; set; }
@@ -65,7 +66,7 @@ namespace AssignmentCourseManagementV1.ViewModels
             Date = ScheduleToEdit.TeachingDate;
             Slot = ScheduleToEdit.Slot;
             Description = ScheduleToEdit.Description;
-
+            IsSaved = false;
             SaveCommand = new RelayCommand(SaveSchedule);
         }
 
@@ -92,6 +93,12 @@ namespace AssignmentCourseManagementV1.ViewModels
             }
 
             MessageBox.Show("Schedule updated successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            IsSaved = true;
+
+            if (obj is Window window)
+            {
+                window.Close();
+            }
         }
     }
 }

@@ -13,6 +13,7 @@ namespace AssignmentCourseManagementV1.ViewModels
         public ObservableCollection<Course> Courses { get; set; }
         public ObservableCollection<Room> Rooms { get; set; }
         public ICommand AddCommand { get; set; }
+        public bool IsSaved { get; private set; }
 
         private Course _selectedCourse;
         public Course SelectedCourse
@@ -39,6 +40,7 @@ namespace AssignmentCourseManagementV1.ViewModels
                 Courses = new ObservableCollection<Course>(db.Courses.ToList());
                 Rooms = new ObservableCollection<Room>(db.Rooms.ToList());
             }
+            IsSaved = false;
             AddCommand = new RelayCommand(AddSchedule);
         }
 
@@ -66,9 +68,12 @@ namespace AssignmentCourseManagementV1.ViewModels
             }
 
             MessageBox.Show("Schedule added successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            IsSaved = true;
 
-            // The window will be closed by the user or by setting its DialogResult.
-            // For simplicity, we let the user close it. The MainWindow will reload data anyway.
+            if (obj is Window window)
+            {
+                window.Close();
+            }
         }
     }
 }

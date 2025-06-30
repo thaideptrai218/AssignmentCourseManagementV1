@@ -48,6 +48,7 @@
 
         <Button Grid.Row="5" Grid.Column="1" Content="Save" Margin="5"
                 Command="{Binding SaveCommand}"
+                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
                 HorizontalAlignment="Right"/>
     </Grid>
 </Window>

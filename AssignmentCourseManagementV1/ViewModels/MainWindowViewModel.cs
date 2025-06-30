@@ -91,7 +91,10 @@ namespace AssignmentCourseManagementV1.ViewModels
                 DataContext = viewModel
             };
             window.ShowDialog();
-            LoadData();
+            if (viewModel.IsSaved)
+            {
+                LoadData();
+            }
         }
 
         private void DeleteSchedule(object obj)
@@ -126,7 +129,10 @@ namespace AssignmentCourseManagementV1.ViewModels
                 DataContext = viewModel
             };
             window.ShowDialog();
-            LoadData();
+            if (viewModel.IsSaved)
+            {
+                LoadData();
+            }
         }
     }
 }
