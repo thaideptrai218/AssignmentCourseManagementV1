@@ -19,35 +19,10 @@ namespace AssignmentCourseManagementV1.Views
     {
         public MainWindow()
         {
-            InitializeComponent();
-        }
-        private void btnAdd_Click(object sender, RoutedEventArgs e)
-        {
+            InitializeComponent(); 
+            MainWindowViewModel mainWindowViewModel = new MainWindowViewModel();
+            this.DataContext = mainWindowViewModel;
 
-        }
-
-        private void btnEdit_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void btnDelete_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void btnReset_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-        private void cbCourses_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ScheduleGrid.Items.Filter = obj =>
-            {
-                Course selected = (Course)cbCourses.SelectedItem;
-                CourseSchedule target = (CourseSchedule)obj;
-                return target.CourseId == selected.CourseId;
-            };
         }
     }
 }

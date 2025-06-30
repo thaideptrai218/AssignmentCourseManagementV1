@@ -11,9 +11,6 @@
     Height="450"
     mc:Ignorable="d">
 
-    <Window.DataContext>
-        <viewmodels:MainWindowViewModel />
-    </Window.DataContext>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="15*" />
@@ -32,8 +29,8 @@
             VerticalContentAlignment="Center"
             DisplayMemberPath="CourseCode"
             ItemsSource="{Binding Courses}"
-            SelectedValuePath="CourseId"
-            SelectionChanged="cbCourses_SelectionChanged" />
+            SelectedItem="{Binding SelectedCourse}"
+            SelectedValuePath="CourseId" />
 
         <DataGrid
             Name="ScheduleGrid"
@@ -41,7 +38,7 @@
             Margin="10"
             AutoGenerateColumns="False"
             Background="Bisque"
-            ItemsSource="{Binding CourseSchedues}">
+            ItemsSource="{Binding FilteredCourseSchedules}">
             <DataGrid.Columns>
                 <DataGridTextColumn
                     Width="30"
@@ -79,28 +76,26 @@
                 Width="100"
                 Height="40"
                 Margin="0,0,20,0"
-                Click="btnAdd_Click"
+                Command="{Binding AddCommand}"
                 Content="Add" />
             <Button
                 Name="btnEdit"
                 Width="100"
                 Height="40"
                 Margin="0,0,20,0"
-                Click="btnEdit_Click"
                 Content="Edit" />
             <Button
                 Name="btnDelete"
                 Width="100"
                 Height="40"
                 Margin="0,0,20,0"
-                Click="btnDelete_Click"
                 Content="Delete" />
             <Button
                 Name="btnReset"
                 Width="100"
                 Height="40"
                 Margin="0,0,20,0"
-                Click="btnReset_Click"
+                Command="{Binding ResetCommand}"
                 Content="Reset" />
         </StackPanel>
     </Grid>
