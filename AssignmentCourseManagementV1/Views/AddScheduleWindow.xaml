@@ -32,7 +32,7 @@
                 BorderThickness="1"
                 DisplayMemberPath="CourseCode"
                 ItemsSource="{Binding Courses}"
-                SelectedValue="{Binding SelectedCourse}"
+                SelectedItem="{Binding SelectedCourse}"
                 SelectedValuePath="CourseId" />
 
             <Label
@@ -85,7 +85,7 @@
                 BorderThickness="1"
                 DisplayMemberPath="RoomCode"
                 ItemsSource="{Binding Rooms}"
-                SelectedValue="{Binding SelectedRoom}"
+                SelectedItem="{Binding SelectedRoom}"
                 SelectedValuePath="RoomId" />
 
             <Label

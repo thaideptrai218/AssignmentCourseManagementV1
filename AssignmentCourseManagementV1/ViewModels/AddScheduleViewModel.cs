@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace AssignmentCourseManagementV1.ViewModels
@@ -64,7 +65,35 @@ namespace AssignmentCourseManagementV1.ViewModels
 
         private void AddSchedule(object obj)
         {
-           
+            // Basic validation
+            //if (SelectedCourse == null || SelectedRoom == null || date == null || slot == null)
+            //{
+            //    MessageBox.Show("Please fill in all required fields.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            //    return;
+            //}
+
+            var newSchedule = new CourseSchedule
+            {
+                CourseId = SelectedCourse.CourseId,
+                TeachingDate = date,
+                Slot = slot,
+                RoomId = SelectedRoom.RoomId,
+                Description = description
+            };
+
+            _db.CourseSchedules.Add(newSchedule);
+            _db.SaveChanges();
+
+            // Update local collection
+            CourseSchedues.Add(newSchedule);
+
+            MessageBox.Show("Schedule added successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            // Optionally close the window if obj is the window
+            if (obj is Window window)
+            {
+                window.Close();
+            }
         }
     }
 }
