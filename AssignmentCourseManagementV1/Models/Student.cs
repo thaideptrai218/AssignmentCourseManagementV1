@@ -17,7 +17,14 @@ public partial class Student
 
     public string FullName => $"{LastName} {MidName} {FirstName}";
 
+    public string? FullInfo => $"{StudentId} {Roll} {LastName} {MidName} {FirstName}";
+
     public virtual ICollection<RollCallBook> RollCallBooks { get; set; } = new List<RollCallBook>();
 
     public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
+
+    public override string? ToString()
+    {
+        return base.ToString();
+    }
 }

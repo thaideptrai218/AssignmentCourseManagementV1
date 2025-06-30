@@ -32,6 +32,8 @@
                 <Button Name="btnDelete" Content="Delete" Width="80" Margin="10" Command="{Binding DeleteCommand}"/>
                 <Button Name="btnReset" Content="Reset" Width="80" Margin="10" Command="{Binding ResetCommand}"/>
             </StackPanel>
+
+            <TextBlock Text="{Binding SelectedStudent.FullInfo}" />
         </StackPanel>
     </Grid>
 </Window>

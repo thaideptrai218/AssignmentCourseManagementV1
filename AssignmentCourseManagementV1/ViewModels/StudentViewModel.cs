@@ -44,6 +44,16 @@ namespace AssignmentCourseManagementV1.ViewModels
             }
         }
 
+        public Student seletedStudentString
+        {
+            get
+            {
+                return _selectedStudent;
+            }
+
+            set;
+        }
+
         public StudentViewModel()
         {
             _db = new APContext();
